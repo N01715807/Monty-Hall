@@ -12,43 +12,72 @@
   <div id="result"></div>
 
   <script>
-    function runSimulation() {
-      let switchWins = 0;
-      let stayWins = 0;
-      let trials = 10000;
+    function simulateOneGame(){
+    let choice = Math.floor(Math.random()*3) + 1
+    return choice;
+}
 
-      for (let i = 0; i < trials; i++) {
-        const winningDoor = Math.floor(Math.random() * 3) + 1;
-        const playerChoice = Math.floor(Math.random() * 3) + 1;
+function winningDoor(){
+    let winner = Math.floor(Math.random()*3) + 1
+    return winner;
+}
 
-        let removeDoor;
-        do {
-          removeDoor = Math.floor(Math.random() * 3) + 1;
-        } while (removeDoor === winningDoor || removeDoor === playerChoice);
+function removeDoor(choice, winner){
+    let door = [1,2,3]
+    let availableToRemove = door. filter(function(door)
+    {
+        return door !== choice && door !== winner
+    })
+    let remove = availableToRemove[Math.floor(Math.random()*availableToRemove.length)]
+    return remove;
+}
 
-        let switchChoice;
-        for (let j = 1; j <= 3; j++) {
-          if (j !== playerChoice && j !== removeDoor) {
-            switchChoice = j;
-            break;
-          }
-        }
+function staychoice(choice, winner){
+    if(choice == winner){return "win"}
+    else{return "lose"}
+}
 
-        if (switchChoice === winningDoor) switchWins++;
-        if (playerChoice === winningDoor) stayWins++;
-      }
+function changeChoice(choice, remove, winner){
+    let Select = [1,2,3]
+    let leftDoor = Select. filter(function(Select){
+        return Select != choice && Select !== remove
+    })
 
-      const switchRate = (switchWins / trials * 100).toFixed(2);
-      const stayRate = (stayWins / trials * 100).toFixed(2);
+    if(leftDoor[0]  == winner){return "win"}
+    else{return "lose"}
+}
 
-      document.getElementById("result").innerHTML = `
-        <strong>Results from ${trials} trials:</strong><br>
-        Switch Win Rate: <strong>${switchRate}%</strong><br>
-        stay Win Rate: <strong>${stayRate}%</strong><br>
-        <br>
-        Conclusion: Switching doors is statistically better!
-      `;
+function runSimulation(rounds) {
+let switchWins = 0; 
+for(let i = 0 ;i < rounds ;i++){
+    let choice = simulateOneGame();
+    let winner = winningDoor();
+    let remove = removeDoor(choice, winner);
+    let result = changeChoice(choice, remove, winner);
+    if(result === "win"){
+        switchWins++;
     }
+}
+
+let stayWins = 0; 
+for(let i=0 ; i < rounds ; i++){
+    let choice = simulateOneGame();
+    let winner = winningDoor();
+    let result = staychoice(choice, winner);
+    if(result === "win"){
+        stayWins++;
+    }
+}
+
+let switchRate = ((switchWins / rounds) * 100).toFixed(2);
+let stayRate = ((stayWins / rounds)*100).toFixed(2);
+
+document.getElementById('result').innerHTML = `
+        <p><strong>Simulated ${rounds} times</strong></p>
+        <p>Switch strategy: <strong>${switchWins}</strong> wins (${switchRate}%)</p>
+        <p>Stay strategy: <strong>${stayWins}</strong> wins (${stayRate}%)</p>
+    `;
+}
   </script>
 
 </body>
